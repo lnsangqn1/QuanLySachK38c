@@ -1,0 +1,13 @@
+D:\THLVN\QuanLySach\QuanLySach\bin\Debug\QuanLySach.exe.config
+D:\THLVN\QuanLySach\QuanLySach\bin\Debug\Database1.mdf
+D:\THLVN\QuanLySach\QuanLySach\bin\Debug\Database1_log.ldf
+D:\THLVN\QuanLySach\QuanLySach\bin\Debug\QuanLySach.exe
+D:\THLVN\QuanLySach\QuanLySach\bin\Debug\QuanLySach.pdb
+D:\THLVN\QuanLySach\QuanLySach\obj\Debug\QuanLySach.csprojResolveAssemblyReference.cache
+D:\THLVN\QuanLySach\QuanLySach\obj\Debug\QuanLySach.fAdmin.resources
+D:\THLVN\QuanLySach\QuanLySach\obj\Debug\QuanLySach.fLogin.resources
+D:\THLVN\QuanLySach\QuanLySach\obj\Debug\QuanLySach.fBookStore.resources
+D:\THLVN\QuanLySach\QuanLySach\obj\Debug\QuanLySach.Properties.Resources.resources
+D:\THLVN\QuanLySach\QuanLySach\obj\Debug\QuanLySach.csproj.GenerateResource.Cache
+D:\THLVN\QuanLySach\QuanLySach\obj\Debug\QuanLySach.exe
+D:\THLVN\QuanLySach\QuanLySach\obj\Debug\QuanLySach.pdb

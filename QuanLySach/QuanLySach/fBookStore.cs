@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Data.SqlClient;
+using System.IO;
 
 namespace QuanLySach
 {
@@ -40,9 +41,10 @@ namespace QuanLySach
             comboBox1.Text = "Tác giả";
             LoadSach();
         }
+        
         private void LoadSach()
         {
-            string query = "select TOP 3 TenSach, GiaSach, TacGia from ThongTinSach order by Id DESC";
+            string query = "select TenSach, GiaSach, TacGia from ThongTinSach order by Id DESC";
 
             using (SqlConnection con = new SqlConnection(connectionString))
             {
@@ -57,8 +59,10 @@ namespace QuanLySach
                         {
                             Label lb = new Label();
                             lb.Text = Convert.ToString(dr["GiaSach"]) + " đ";
-                            listView1.Items[i].Text = (string)dr["TenSach"] + "\n\n" + lb.Text;
+                            ListViewItem item = new ListViewItem();
+                            listView1.Items.Add(item).Text = (string)dr["TenSach"] + "\n\n" + lb.Text;
                             label1.Text = TaiKhoan;
+
                             Button btn = new Button();
                             btn.Text = "Chi tiết";
                             btn.Click += new EventHandler(button1_Click);
