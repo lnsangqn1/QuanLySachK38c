@@ -8,11 +8,14 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Data.SqlClient;
+using System.IO;
+
 
 namespace QuanLySach
 {
     public partial class fAdmin : Form
     {
+        string connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["quanlysach"].ConnectionString;
         public fAdmin()
         {
             InitializeComponent();
@@ -20,9 +23,34 @@ namespace QuanLySach
 
         private void fAdmin_Load(object sender, EventArgs e)
         {
-
+            LayLoaiSach();
         }
+        private void LayLoaiSach()
+        {
+            string query = "select LoaiSach from ThongTinSach";
 
+            using (SqlConnection con = new SqlConnection(connectionString))
+            {
+                con.Open();
+                using (SqlCommand cmd = new SqlCommand(query, con))
+                {
+                    SqlDataAdapter da = new SqlDataAdapter(cmd);
+                    DataSet ds = new DataSet();
+                    da.Fill(ds, "LoaiSach");
+                    cmbLoaiSach.DisplayMember = "LoaiSach";
+                    cmbLoaiSach.DataSource = ds.Tables["LoaiSach"];
+
+                }
+            }
+        }
+        private bool CheckHopLe()
+        {
+            if (!string.IsNullOrEmpty(cmbLoaiSach.Text) && !string.IsNullOrEmpty(txtTenSach.Text) && !string.IsNullOrEmpty(txtTacGia.Text) && !string.IsNullOrEmpty(txtPathImage.Text))
+            {
+                return true;
+            }
+            return false;
+        }
         private void btnCreateUser_Click(object sender, EventArgs e)
         {
             if (txtTen.Text == "" || txtHo.Text == "")
@@ -32,20 +60,20 @@ namespace QuanLySach
             }
             
                 string connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["quanlysach"].ConnectionString;
-                string query = string.Format("insert into ThongTinKhachHang (Ho, Ten, NgaySinh, NamSinh, DienThoai, Email, DiaChi, QuocGia, TinhThanh, QuanHuyen, PhuongXa, GhiChu) values ('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}',N'{7}', '{8}', '{9}', '{10}', '{11}')", txtHo.Text, txtTen.Text, txtNgaySinh.Text, txtNamSinh.Text, txtDienThoai.Text, txtEmail.Text, txtDiaChi.Text, txtQuocGia.Text, txtTinhThanh.Text, txtQuanHuyen.Text, txtPhuongXa.Text, txtGhiChu.Text);
+                string query = string.Format("insert into ThongTinKhachHang (Ho, Ten, NgaySinh, NamSinh, GioiTinh, DienThoai, Email, DiaChi, QuocGia, TinhThanh, QuanHuyen, PhuongXa, GhiChu) values (N'{0}', N'{1}', '{2}', '{3}', N'{4}', '{5}', '{6}', N'{7}', N'{8}', N'{9}', N'{10}', N'{11}', N'{12}')", "abc", "bcb", txtNgaySinh.Text, txtNamSinh.Text, txtGioiTinh.Text, txtDienThoai.Text, txtEmail.Text, txtDiaChi.Text, txtQuocGia.Text, txtTinhThanh.Text, txtQuanHuyen.Text, txtPhuongXa.Text, txtGhiChu.Text);
 
                 using (SqlConnection con = new SqlConnection(connectionString))
                 {
-                    con.Open();
                     try
                     {
                         SqlCommand cmd = new SqlCommand(query, con);
+                        con.Open();
                         cmd.ExecuteNonQuery();
                         MessageBox.Show("Tạo mới khách hàng thành công", "Thông báo");
                     }
-                    catch
+                    catch (Exception ex)
                     {
-                        MessageBox.Show("Thông tin nhập không hợp lệ. Vui lòng nhập lại", "Lỗi");
+                        MessageBox.Show("Có lỗi đã xảy ra:\n" + ex.ToString(), "Lỗi");
                         return;
                     }
                 }
@@ -58,5 +86,74 @@ namespace QuanLySach
             if (dlr == DialogResult.Yes) this.Close();
         }
         public string TaiKhoan { set; get; }
+        
+        // Hàm chuyển hình ảnh sang binary
+        private byte[] convertImagetoBinary()
+        {
+            FileStream fs;
+            fs = new FileStream(txtPathImage.Text, FileMode.Open, FileAccess.Read);
+
+            //Tạo 1 biến có kiểu byte để đọc image
+            byte[] picbyte = new byte[fs.Length];
+            fs.Read(picbyte, 0, System.Convert.ToInt32(fs.Length));
+            fs.Close();
+            return picbyte;
+        }
+        private void btnThem_Click(object sender, EventArgs e)
+        {
+            if (CheckHopLe())
+            {
+                string query = "insert into ThongTinSach (TenSach, GiaSach, TacGia, LoaiSach, Image) values (@TS, @GS, @TG, @LS, @HA)";
+
+                using (SqlConnection con = new SqlConnection(connectionString))
+                {
+                    using (SqlCommand cmd = new SqlCommand(query, con))
+                    {
+                        cmd.Parameters.AddWithValue("@TS", txtTenSach.Text);
+                        cmd.Parameters.AddWithValue("@GS", nudGiaSach.Value);
+                        cmd.Parameters.AddWithValue("@TG", txtTacGia.Text);
+                        cmd.Parameters.AddWithValue("@LS", cmbLoaiSach.Text);
+                        cmd.Parameters.AddWithValue("@HA", convertImagetoBinary());
+
+                        try
+                        {
+                            con.Open();
+                            cmd.ExecuteNonQuery();
+                            
+                            LayLoaiSach();
+                            MessageBox.Show("Thêm sách thành công !", "Thông báo");
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show("Có lỗi đã xảy ra\n" + ex.ToString());
+                        }
+                    }
+                }
+            }
+            else
+            {
+                MessageBox.Show("Không thêm được thêm. Vui lòng kiểm tra lại", "Thông báo");
+            }
+        }
+
+        private void btnChonAnh_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog ofdl = new OpenFileDialog();
+            ofdl.Filter = "JPG files (*.jpg)|*.jpg|All files (*.*)|*.*";
+            ofdl.FilterIndex = 1;
+            ofdl.RestoreDirectory = true;
+            if (ofdl.ShowDialog() == DialogResult.OK)
+            {
+                try
+                {
+                    pictureBox2.ImageLocation = ofdl.FileName;
+                    txtPathImage.Text = ofdl.FileName;
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Có lỗi đã xảy ra:\n" + ex.ToString());
+                }
+            }
+        }
     }
 }

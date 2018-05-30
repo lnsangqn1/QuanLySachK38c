@@ -29,47 +29,60 @@ namespace QuanLySach
         {
             string connectionString = connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["quanlysach"].ConnectionString;
             string query = "select * from Login";
-            SqlConnection con = new SqlConnection(connectionString);
-            using (SqlCommand cmd = new SqlCommand(query, con))
+            using (SqlConnection con = new SqlConnection(connectionString))
             {
                 con.Open();
-                using (SqlDataReader dr = cmd.ExecuteReader())
+                using (SqlCommand cmd = new SqlCommand(query, con))
                 {
-                    int dem = 0;
-                    while(dr.Read())
+                    using (SqlDataReader dr = cmd.ExecuteReader())
                     {
-                        
-                        if (txtbUserName.Text == (string)dr["TaiKhoan"] && txtbPassWord.Text == (string)dr["MatKhau"])
+                        int dem = 0;
+                        while (dr.Read())
                         {
-                            if ((int)dr["NhanVien"] == 0)
+
+                            if (txtbUserName.Text == (string)dr["TaiKhoan"] && txtbPassWord.Text == (string)dr["MatKhau"])
                             {
-                                fBookStore m = new fBookStore();
-                                m.TaiKhoan = (string)dr["TaiKhoan"];
-                                m.ShowDialog();
+                                if ((bool)dr["NhanVien"] == false)
+                                {
+                                    fBookStore m = new fBookStore();
+                                    m.TaiKhoan = (string)dr["TaiKhoan"];
+                                    //con.Close();
+                                    this.Hide();
+                                    m.ShowDialog();
+                                }
+                                else
+                                {
+                                    fAdmin adm = new fAdmin();
+                                    adm.TaiKhoan = (string)dr["TaiKhoan"];
+                                    //con.Close();
+                                    this.Hide();
+                                    adm.ShowDialog();
+                                }
+                                dem = 1;
                             }
-                            else
-                            {
-                                fAdmin adm = new fAdmin();
-                                adm.TaiKhoan = (string)dr["TaiKhoan"];
-                                this.Hide();
-                                adm.ShowDialog();
-                            }
-                            dem = 1;
+                        }
+                        if (dem == 0)
+                        {
+                            MessageBox.Show("Tài khoản hoặc mật khẩu không đúng.\n Vui lòng nhập lại", "Thông báo");
                         }
                     }
-                    if (dem == 0)
-                    {
-                        MessageBox.Show("Tài khoản hoặc mật khẩu không đúng.\n Vui lòng nhập lại", "Thông báo");
-                        return;
-                    }
                 }
-                con.Close();
             }
         }
         private void button1_Click(object sender, EventArgs e)
         {
             CheckLogin();
             this.Show();
+        }
+
+        private void fLogin_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void panel1_Paint(object sender, PaintEventArgs e)
+        {
+
         }
 
 
